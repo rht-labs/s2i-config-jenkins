@@ -33,6 +33,7 @@ display-url-api:2.2.0
 docker-commons:1.13
 docker-workflow:1.17
 durable-task:1.25
+embeddable-build-status:2.0
 favorite:2.3.2
 git-client:2.7.3
 git:3.9.1
@@ -81,7 +82,7 @@ plain-credentials:1.4
 pubsub-light:1.12
 run-condition:1.2
 scm-api:2.2.7
-script-security:1.44
+script-security:1.49
 sse-gateway:1.15
 ssh-credentials:1.14
 structs:1.14
