@@ -57,7 +57,7 @@ lockable-resources:2.3
 mailer:1.21
 mapdb-api:1.0.9.0
 matrix-auth:2.2
-matrix-project:1.12
+matrix-project:1.14
 mercurial:2.3
 momentjs:1.1
 openshift-client:1.0.16
@@ -83,7 +83,7 @@ plain-credentials:1.4
 pubsub-light:1.12
 run-condition:0.10
 scm-api:2.2.8
-script-security:1.50
+script-security:1.54
 sse-gateway:1.16
 ssh-credentials:1.14
 structs:1.17
@@ -127,7 +127,7 @@ email-ext:2.63
 embeddable-build-status:2.0
 external-monitor-job:1.7
 gerrit-trigger:2.27.6
-ghprb:1.42.0
+# ghprb:1.42.0 - https://wiki.jenkins-ci.org/display/JENKINS/GitHub+pull+request+builder+plugin
 gitlab-logo:1.0.3
 gitlab-merge-request-jenkins:2.0.0
 gitlab-plugin:1.5.9
@@ -145,7 +145,7 @@ m2-extra-steps:1.1.7
 managed-scripts:1.4
 maven-plugin:3.1.2
 metrics:4.0.2.2
-mq-notifier:1.2.6
+mq-notifier:1.2.8
 multiple-scms:0.6
 nexus-artifact-uploader:2.10
 nexus-jenkins-plugin:3.3.20180830-142202.6bdf614
@@ -165,7 +165,7 @@ rebuild:1.28
 resource-disposer:0.12
 ruby-runtime:0.12
 slack:2.3
-sonar:2.8
+sonar:2.8.1
 ssh-agent:1.16
 ssh-slaves:1.28
 summary_report:1.15
@@ -173,8 +173,6 @@ support-core:2.45.1
 timestamper:1.8.10
 view-job-filters:1.27
 vsphere-cloud:2.18
-#replaces build-flow-plugin: https://wiki.jenkins.io/display/JENKINS/Build+Flow+Plugin
-workflow-aggregator:2.6
 windows-slaves:1.3.1
 ws-cleanup:0.34
 xunit:2.2.3
