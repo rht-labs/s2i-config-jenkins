@@ -33,7 +33,6 @@ display-url-api:2.2.0
 docker-commons:1.11
 docker-workflow:1.14
 durable-task:1.26
-embeddable-build-status:2.0
 favorite:2.3.1
 git-client:2.7.3
 git:3.9.3
@@ -50,7 +49,7 @@ jenkins-design-language:1.10.2
 jira:3.0.5
 job-dsl:1.68
 jquery-detached:1.2.1
-jsch:0.1.54.1
+jsch:0.1.54.2
 junit:1.24
 kubernetes-credentials:0.3.0
 kubernetes:1.12.8
@@ -103,7 +102,6 @@ workflow-remote-loader:1.4
 workflow-scm-step:2.6
 workflow-step-api:2.16
 workflow-support:2.22
-jdk-tool:1.0
 analysis-collector:1.52
 analysis-core:1.95
 ansicolor:0.5.2
@@ -127,6 +125,7 @@ cucumber-reports:3.20.0
 cvs:2.14
 dashboard-view:2.9.11
 email-ext:2.63
+embeddable-build-status:2.0
 external-monitor-job:1.7
 gerrit-trigger:2.27.6
 ghprb:1.42.0
@@ -139,6 +138,7 @@ groovy-postbuild:2.4.2
 hue-light:1.2.0
 icon-shim:2.0.3
 javadoc:1.4
+jdk-tool:1.0
 jobConfigHistory:2.18
 jquery:1.12.4-0
 ldap:1.20
