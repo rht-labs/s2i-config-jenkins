@@ -110,7 +110,6 @@ ant:1.8
 badge:1.5
 bouncycastle-api:2.17
 build-failure-analyzer:1.20.0
-build-flow-plugin:0.20
 buildgraph-view:1.8
 build-monitor-plugin:1.12+build.201805070054
 build-pipeline-plugin:1.5.8
@@ -174,6 +173,8 @@ support-core:2.45.1
 timestamper:1.8.10
 view-job-filters:1.27
 vsphere-cloud:2.18
+#replaces build-flow-plugin: https://wiki.jenkins.io/display/JENKINS/Build+Flow+Plugin
+workflow-aggregator:2.6
 windows-slaves:1.3.1
 ws-cleanup:0.34
 xunit:2.2.3
