@@ -136,7 +136,6 @@ gitlab-plugin:1.5.9
 gogs-webhook:1.0.14
 greenballs:1.15
 groovy-postbuild:2.4.2
-handy-uri-templates-2-api:2.1.6-1.0
 hue-light:1.2.0
 icon-shim:2.0.3
 javadoc:1.4
