@@ -121,7 +121,7 @@ checkstyle:3.50
 claim:2.15
 cobertura:1.12.1
 command-launcher:1.2
-copy-to-slave:1.4.4
+# copy-to-slave:1.4.4
 # - https://wiki.jenkins.io/display/JENKINS/Copy+To+Slave+Plugin
 cucumber-reports:3.20.0
 cvs:2.14
