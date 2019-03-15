@@ -110,6 +110,7 @@ ant:1.8
 badge:1.5
 bouncycastle-api:2.17
 build-failure-analyzer:1.20.0
+# build-flow-plugin:0.20 - https://wiki.jenkins.io/display/JENKINS/Build+Flow+Plugin
 buildgraph-view:1.8
 build-monitor-plugin:1.12+build.201805070054
 build-pipeline-plugin:1.5.8
