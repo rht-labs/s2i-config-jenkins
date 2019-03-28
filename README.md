@@ -29,6 +29,15 @@ By default the deployment will attempt to connect to SonarQube and configure its
 ## Git Creds
 Inject the `git` credentials to Jenkins-s2i when it is being built by editing `configuration/init.groovy.d/configure-credentials.groovy` or by exposing a new environment Variable to the Jenkins deployment tempate.
 
+## Jenkins DSL Seed for MultiBranch Pipelines (GitLab)
+
+A DSL Seed job is included in the s2i. The purpose of this job is to automatically generate multi branc pipelines for each project in a given GitLab namespace that has a `Jenkinsfile`. To set this up, configure the Deployment Config for your Jenkins with the following `ENVIRONMENT` variables or just edit the `configuration/jobs/seed-multibranch-pipelines/config.xml` file. If you don't want or need this job, just delete it from the `configuration/jobs` directory.
+```
+GITLAB_HOST is the Http address of the GitLab Project eg 'https://gitlab.apps.proj.example.com'
+GITLAB_TOKEN is the GitLab API token to access repos and projects eg 'token123'
+GITLAB_GROUP_NAME is the GitLab group name where projects are stored eg 'rht-labs'
+```
+
 ## Shared Library
 
 An optional shared global library can be used to add method calls to pipelines which can help to simplify and organize a pipeline. The global library will be implicitly available to all pipelines.
@@ -42,4 +51,3 @@ To configure a library environment variables need to be made available to your i
 ## Contributing
 
 There are some [helpers](helpers/README.MD) to get configuration out of a running Jenkins. 
-
