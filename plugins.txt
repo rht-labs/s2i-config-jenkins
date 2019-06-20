@@ -34,6 +34,7 @@ docker-commons:1.13
 docker-workflow:1.17
 durable-task:1.29
 favorite:2.3.2
+generic-webhook-trigger:1.54
 git-client:2.7.6
 git:3.9.3
 github-api:1.95
@@ -145,6 +146,7 @@ maven-plugin:3.2
 metrics:4.0.2.3
 mq-notifier:1.2.8
 multiple-scms:0.6
+multibranch-scan-webhook-trigger:1.0.5
 nexus-artifact-uploader:2.10
 nexus-jenkins-plugin:3.5.20190313-114450.3bfee7f
 node-iterator-api:1.5
@@ -168,8 +170,6 @@ ssh-slaves:1.29.4
 summary_report:1.15
 support-core:2.56
 timestamper:1.9
-vsphere-cloud:2.19
-windows-slaves:1.4
 ws-cleanup:0.37
 xunit:2.3.3
 code-coverage-api:1.0.7
