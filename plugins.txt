@@ -30,7 +30,7 @@ blueocean-web:1.18.1
 blueocean:1.18.1
 bouncycastle-api:2.17
 branch-api:2.5.4
-build-failure-analyzer:1.23.0
+build-failure-analyzer:1.22.0
 build-monitor-plugin:1.12+build.201809061734
 build-pipeline-plugin:1.5.8
 build-with-parameters:1.4
