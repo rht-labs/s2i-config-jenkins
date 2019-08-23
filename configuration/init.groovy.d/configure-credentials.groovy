@@ -4,6 +4,12 @@ import com.cloudbees.plugins.credentials.*
 import com.cloudbees.plugins.credentials.common.*
 import com.cloudbees.plugins.credentials.domains.*
 import com.cloudbees.plugins.credentials.impl.*
+import javaposse.jobdsl.plugin.GlobalJobDslSecurityConfiguration
+import jenkins.model.GlobalConfiguration
+
+// disable Job DSL script approval
+GlobalConfiguration.all().get(GlobalJobDslSecurityConfiguration.class).useScriptSecurity=false
+GlobalConfiguration.all().get(GlobalJobDslSecurityConfiguration.class).save()
 
 import jenkins.*
 import hudson.model.*

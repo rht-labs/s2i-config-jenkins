@@ -60,10 +60,10 @@ matrix-auth:2.3
 matrix-project:1.14
 mercurial:2.5
 momentjs:1.1.1
-openshift-client:1.0.28
-openshift-login:1.0.16
-openshift-pipeline:1.0.55
-openshift-sync:1.0.34
+openshift-client:1.0.32
+openshift-login:1.0.19
+openshift-pipeline:1.0.56
+openshift-sync:1.0.41
 parameterized-trigger:2.35.2
 pipeline-build-step:2.7
 pipeline-github-lib:1.0
