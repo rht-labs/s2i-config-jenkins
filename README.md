@@ -18,9 +18,9 @@ The directory structure is dictated by [OpenShift Jenkins S2I image](https://doc
 
 To Integrate with slack follow the steps at https://github.com/jenkinsci/slack-plugin. Particularly, create a webhook at  https://customteamname.slack.com/services/new/jenkins-ci. After the webhook setup is complete at slack, record and add the below environmental variables. You can retrieve the values on your [slack dashboard](https://my.slack.com/services/new/jenkins-ci). Make sure you are logged into the correct team.
 1. The base url as `SLACK_BASE_URL`
-2. The slack token as `SLACK_TOKEN`
-3. The slack room you selected as the default slack channel as `SLACK_ROOM`
-4. optionally, a jenkins credential can be used for the token and referenced by a custom id at `SLACK_TOKEN_CREDENTIAL_ID`. This takes precedences over the `SLACK_TOKEN`
+2. The slack room you selected as the default slack channel as `SLACK_ROOM`
+3. A jenkins credential needs to be created. Use the id of the credential for the environmental variable `SLACK_TOKEN_CREDENTIAL_ID`. When creating this credential in OpenShift, create a secret that syncs withe jenkins and uses the key secrettext. Prepend the namespaces to the credential name. For example, if you create a secret named `slack-token` in the namespace `jenkins` then this variable would be `jenkins-slack-token`.
+4. Optionally, you can add your slack team name with the variable `SLACK_TEAM`
 
 ## SonarQube Integration
  
