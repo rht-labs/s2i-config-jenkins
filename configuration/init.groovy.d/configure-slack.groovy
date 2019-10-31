@@ -16,9 +16,9 @@ if(slackBaseUrl != null) {
   def slack = Jenkins.instance.getDescriptorByType(jenkins.plugins.slack.SlackNotifier.DescriptorImpl)
 
   slack.baseUrl = slackBaseUrl
-  slack.teamDomain = slackTeamDomain
-  slack.tokenCredentialId = slackTokenCredentialId
-  slack.room = slackRoom
+  slack.teamDomain = slackTeamDomain ?: ''
+  slack.tokenCredentialId = slackTokenCredentialId ? System.getenv('OPENSHIFT_BUILD_NAMESPACE') + "-" + slackTokenCredentialId : ''
+  slack.room = slackRoom ?: '#jenkins'
   slack.save()
 
   LOG.log(Level.INFO,  'Configured slack' )
