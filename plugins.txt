@@ -146,7 +146,7 @@ ruby-runtime:0.12
 run-condition:1.2
 scm-api:2.6.3
 script-security:1.62
-slack:2.32
+slack:2.34
 sonar:2.9
 sse-gateway:1.19
 ssh-agent:1.17
