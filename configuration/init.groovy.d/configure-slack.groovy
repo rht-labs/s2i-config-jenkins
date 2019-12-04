@@ -1,6 +1,4 @@
 import jenkins.model.Jenkins
-import net.sf.json.JSONObject
-
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -10,35 +8,20 @@ final def LOG = Logger.getLogger("LABS")
 if(slackBaseUrl != null) {
 
   LOG.log(Level.INFO,  'Configuring slack...' )
-  
-  def slackToken = System.getenv('SLACK_TOKEN')
+
   def slackRoom = System.getenv('SLACK_ROOM')
-  def slackSendAs = ''
-  def slackTeamDomain = ''
+  def slackTeamDomain = System.getenv('SLACK_TEAM')
   def slackTokenCredentialId = System.getenv('SLACK_TOKEN_CREDENTIAL_ID')
 
-  if(slackTokenCredentialId == null) {
-    slackTokenCredentialId = ''
-  }
+  def slack = Jenkins.instance.getDescriptorByType(jenkins.plugins.slack.SlackNotifier.DescriptorImpl)
 
-  JSONObject formData = ['slack': ['tokenCredentialId': slackTokenCredentialId]] as JSONObject
-
-  def slack = Jenkins.instance.getExtensionList(
-    jenkins.plugins.slack.SlackNotifier.DescriptorImpl.class
-  )[0]
-  def params = [
-    slackBaseUrl: slackBaseUrl,
-    slackTeamDomain: slackTeamDomain,
-    slackToken: slackToken,
-    slackRoom: slackRoom,
-    slackSendAs: slackSendAs
-  ]
-  def req = [
-    getParameter: { name -> params[name] }
-  ] as org.kohsuke.stapler.StaplerRequest
-  slack.configure(req, formData)
+  slack.baseUrl = slackBaseUrl
+  slack.teamDomain = slackTeamDomain ?: ''
+  slack.tokenCredentialId = slackTokenCredentialId ? System.getenv('OPENSHIFT_BUILD_NAMESPACE') + "-" + slackTokenCredentialId : ''
+  slack.room = slackRoom ?: '#jenkins'
+  slack.save()
 
   LOG.log(Level.INFO,  'Configured slack' )
 
-  slack.save()
 }
+
