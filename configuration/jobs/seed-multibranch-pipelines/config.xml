@@ -92,7 +92,10 @@ try {
                     }
                 }
                 triggers {
-                    periodic(1)
+                    computedFolderWebHookTrigger {
+                      // The token to match with webhook token.
+                    	token(project)
+                    }
                 }
                 orphanedItemStrategy {
                     discardOldItems {
