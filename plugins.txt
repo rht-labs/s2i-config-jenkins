@@ -50,6 +50,7 @@ config-file-provider:3.6.3
 copy-to-slave:1.4.4
 credentials-binding:1.23
 credentials:2.3.7
+cucumber-reports:5.3.0
 cvs:2.16
 dashboard-view:2.12
 display-url-api:2.3.2

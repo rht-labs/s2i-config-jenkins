@@ -1,51 +1,4 @@
-<?xml version='1.1' encoding='UTF-8'?>
-<project>
-  <actions/>
-  <description>Groovy script used to seed Jenkins with multi-branch pipeline jobs:&#xd;
-1. Call GitLab API to get each git repo in a given project&#xd;
-2. Check if project is archived, if so skip it.&#xd;
-3. Check if there is a Jenkinsfile (on master) in each of the found projects&#xd;
-4. Generate a pipeline using the Jenkinsfile and add it to the queue on first creation&#xd;
-5. Every 10 mins run again</description>
-  <keepDependencies>false</keepDependencies>
-  <properties>
-    <jenkins.model.BuildDiscarderProperty>
-      <strategy class="hudson.tasks.LogRotator">
-        <daysToKeep>-1</daysToKeep>
-        <numToKeep>5</numToKeep>
-        <artifactDaysToKeep>-1</artifactDaysToKeep>
-        <artifactNumToKeep>-1</artifactNumToKeep>
-      </strategy>
-    </jenkins.model.BuildDiscarderProperty>
-    <com.sonyericsson.jenkins.plugins.bfa.model.ScannerJobProperty plugin="build-failure-analyzer@1.26.0">
-      <doNotScan>false</doNotScan>
-    </com.sonyericsson.jenkins.plugins.bfa.model.ScannerJobProperty>
-    <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.5.13">
-      <gitLabConnection></gitLabConnection>
-    </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
-    <org.jenkinsci.plugins.gitlablogo.GitlabLogoProperty plugin="gitlab-logo@1.0.5">
-      <repositoryName></repositoryName>
-    </org.jenkinsci.plugins.gitlablogo.GitlabLogoProperty>
-    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.28">
-      <autoRebuild>false</autoRebuild>
-      <rebuildDisabled>false</rebuildDisabled>
-    </com.sonyericsson.rebuild.RebuildSettings>
-  </properties>
-  <scm class="hudson.scm.NullSCM"/>
-  <assignedNode>master</assignedNode>
-  <canRoam>false</canRoam>
-  <disabled>false</disabled>
-  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
-  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers>
-    <hudson.triggers.TimerTrigger>
-      <spec>H/10 * * * *</spec>
-    </hudson.triggers.TimerTrigger>
-  </triggers>
-  <concurrentBuild>false</concurrentBuild>
-  <builders>
-    <javaposse.jobdsl.plugin.ExecuteDslScripts plugin="job-dsl@1.77">
-      <scriptText>// Groovy script used to seed Jenkins with multi-branch pipeline jobs:
+// Groovy script used to seed Jenkins with multi-branch pipeline jobs:
 // 1. Call GitLab API to get each git project in a given group
 // 2. Check if project is archived, if so skip it.
 // 3. Check if there is a Jenkinsfile (on master) in each of the found projects
@@ -168,24 +121,5 @@ if (gitlabToken) {
       throw e
   }
 } else {
-    print "\n\n No tokens set in the Environment eg GITHUB* or GITLAB* so not sure what to do ..... &#129335;‍♂️ \n\n\n"
-}</scriptText>
-      <usingScriptText>true</usingScriptText>
-      <sandbox>false</sandbox>
-      <ignoreExisting>true</ignoreExisting>
-      <ignoreMissingFiles>false</ignoreMissingFiles>
-      <failOnMissingPlugin>false</failOnMissingPlugin>
-      <unstableOnDeprecation>false</unstableOnDeprecation>
-      <removedJobAction>DELETE</removedJobAction>
-      <removedViewAction>DELETE</removedViewAction>
-      <removedConfigFilesAction>DELETE</removedConfigFilesAction>
-      <lookupStrategy>JENKINS_ROOT</lookupStrategy>
-    </javaposse.jobdsl.plugin.ExecuteDslScripts>
-  </builders>
-  <publishers/>
-  <buildWrappers>
-    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.5.2">
-      <colorMapName>xterm</colorMapName>
-    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
-  </buildWrappers>
-</project>
+    print "\n\n No tokens set in the Environment eg GITHUB* or GITLAB* so not sure what to do ..... 🤷‍♂️ \n\n\n"
+}
