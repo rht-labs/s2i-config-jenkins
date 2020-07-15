@@ -1,7 +1,7 @@
 ace-editor:1.1
 analysis-collector:2.0.0
 analysis-core:1.96
-ansicolor:0.6.3
+ansicolor:0.7.0
 ant:1.11
 antisamy-markup-formatter:2.0
 apache-httpcomponents-client-4-api:4.5.10-2.0

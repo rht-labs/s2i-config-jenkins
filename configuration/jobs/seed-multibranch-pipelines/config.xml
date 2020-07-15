@@ -68,7 +68,7 @@ def githubAccount = System.getenv("GITHUB_ACCOUNT")
 def githubOrg = System.getenv("GITHUB_ORG") ?: false
 //eg  https://api.github.com/users/springdo/repos or 
 
-def githubProjects = githubOrg ? new URL("${githubHost}/org/${githubAccount}/repos?per_page=100") : new URL("${githubHost}/users/${githubAccount}/repos?per_page=100")
+def githubProjects = githubOrg ? new URL("${githubHost}/orgs/${githubAccount}/repos?per_page=100") : new URL("${githubHost}/users/${githubAccount}/repos?per_page=100")
 
 
 def createMultibranchPipelineJob(project, gitPath) {
