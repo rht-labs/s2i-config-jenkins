@@ -181,3 +181,4 @@ workflow-step-api:2.22
 workflow-support:3.4
 ws-cleanup:0.38
 xunit:2.3.9
+generic-webhook-trigger:1.67
