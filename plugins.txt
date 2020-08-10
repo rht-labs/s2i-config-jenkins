@@ -115,7 +115,7 @@ nexus-jenkins-plugin:3.8.20200310-130318.c482b58
 node-iterator-api:1.5
 oauth-credentials:0.4
 openshift-client:1.0.32
-openshift-login:1.0.23
+openshift-login:1.0.24
 openshift-pipeline:1.0.57
 openshift-sync:1.0.45
 p4:1.10.12
