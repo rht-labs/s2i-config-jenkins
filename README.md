@@ -14,6 +14,15 @@ The directory structure is dictated by [OpenShift Jenkins S2I image](https://doc
 - [plugins.txt](plugins.txt) is used to install plugins during the S2I build. If you want the details, here is the [S2I assemble script](https://github.com/openshift/jenkins/blob/master/2/contrib/s2i/assemble), which calls the [install jenkins plugins script](https://github.com/openshift/jenkins/blob/master/2/contrib/jenkins/install-plugins.sh).
 - files in the [configuration](configuration) directory will have comments describing exactly what they do
 
+## Plugins.txt
+Handy oneliner to get the right format for the plugins in jenkins after an update:
+```groovy
+Jenkins.instance.pluginManager.plugins.each{
+  plugin -> 
+    println ("${plugin.getShortName()}:${plugin.getVersion()}")
+}
+```
+
 ## Slack Integration
 
 To Integrate with slack follow the steps at https://github.com/jenkinsci/slack-plugin. Particularly, create a webhook at  https://customteamname.slack.com/services/new/jenkins-ci. After the webhook setup is complete at slack, record and add the below environmental variables. You can retrieve the values on your [slack dashboard](https://my.slack.com/services/new/jenkins-ci). Make sure you are logged into the correct team.
