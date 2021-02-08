@@ -46,6 +46,7 @@
   <builders>
     <javaposse.jobdsl.plugin.ExecuteDslScripts plugin="job-dsl@1.77">
       <scriptText>// Groovy script used to seed Jenkins with multi-branch pipeline jobs:
+// Groovy script used to seed Jenkins with multi-branch pipeline jobs:
 // 1. Call GitLab API to get each git project in a given group
 // 2. Check if project is archived, if so skip it.
 // 3. Check if there is a Jenkinsfile (on master) in each of the found projects
@@ -56,8 +57,8 @@
 // GITLAB
 def gitlabHost = System.getenv("GITLAB_HOST") ?: "https://gitlab.apps.proj.example.com"
 def gitlabToken = System.getenv("GITLAB_TOKEN")
-def projectName = System.getenv("GITLAB_GROUP_NAME") ?: "rht-labs"
-def gitlabProjectsApi = new URL("${gitlabHost}/api/v4/groups/${projectName}/projects?per_page=100")
+def groupName = System.getenv("GITLAB_GROUP_NAME") ?: "rht-labs"
+def gitlabProjectsApi = new URL("${gitlabHost}/api/v4/groups/${groupName}/projects?per_page=100")
 
 
 // GITHUB
@@ -71,11 +72,14 @@ def githubOrg = System.getenv("GITHUB_ORG") ?: false
 def githubProjects = githubOrg ? new URL("${githubHost}/orgs/${githubAccount}/repos?per_page=100") : new URL("${githubHost}/users/${githubAccount}/repos?per_page=100")
 
 
-def createMultibranchPipelineJob(project, gitPath) {
+def createMultibranchPipelineJob(project, gitPath, jte) {
     def buildNamespace = System.getenv("BUILD_NAMESPACE") ?: "labs-ci-cd"
     def buildGitAuthSecret = System.getenv("BUILD_GIT_AUTH_SECRET") ?: "git-auth"
+    def jteProject = System.getenv("JTE_PROJECT") ?: "https://gitlab.apps.proj.example.com/rht-labs/pipeline-template-configuration.git"
+    def pipelineConfigDir = System.getenv("JTE_PIPELINE_DIR") ?: "pipeline-configuration"
+    def librariesDir = System.getenv("JTE_LIBRARIES_DIR") ?: "libraries"
 
-    // Build Jenkins multibranc jobs
+    // Build Jenkins multibranch jobs
     multibranchPipelineJob(project) {
         branchSources {
             git {
@@ -96,8 +100,69 @@ def createMultibranchPipelineJob(project, gitPath) {
               numToKeep(0)
             }
         }
+
+        // jte == boolean
+        if (jte) {
+          println("appending config for JTE to job");
+          factory {
+              templateBranchProjectFactory {
+                  filterBranches(true)
+              }
+          }
+          properties {
+            templateConfigFolderProperty {
+              tier {
+                configurationProvider {
+                  scmPipelineConfigurationProvider {
+                    baseDir("${pipelineConfigDir}")
+                    scm {
+                      gitSCM {
+                        userRemoteConfigs {
+                          userRemoteConfig {
+                            url("${jteProject}")
+                            refspec("master")
+                            name("jte-config")
+                            credentialsId("${buildNamespace}-${buildGitAuthSecret}")
+                            }
+                        }
+                        doGenerateSubmoduleConfigurations(false)
+                        browser {}
+                        gitTool(null)
+                        }
+                      }
+                    }
+                  }
+                  librarySources {
+                    librarySource {
+                      libraryProvider {
+                        scmLibraryProvider {
+                          baseDir("${librariesDir}")
+                          scm {
+                            gitSCM {
+                              userRemoteConfigs {
+                                userRemoteConfig {
+                                    url("${jteProject}")
+                                    name("library-config")
+                                    refspec("master")
+                                    credentialsId("${buildNamespace}-${buildGitAuthSecret}")
+                                }
+                              }
+                              doGenerateSubmoduleConfigurations(false)
+                              browser {}
+                              gitTool(null)
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+              }
+            }
+          }
+        }
     }
 }
+
 
 def addJobToQueue(project){
   if (!jenkins.model.Jenkins.instance.getItemByFullName(project)) {
@@ -115,21 +180,38 @@ if (gitlabToken) {
           def gitPath = it.http_url_to_repo
 
           if (it.archived) {
-              print "skipping project ${project} because it has been archived\n\n"
+              println "skipping project ${project} because it has been archived\n\n"
               return
           }
 
+          // 1. Check for "${gitlabHost}/api/v4/projects/${it.id}/repository/files/pipeline_config.groovy?ref=master"
+                // => JTE
+          // 2. Check for Jenkinsfile
+                // => Jenkins classic
+          // else - bail and do nothing
           try {
-              def filesApi = new URL("${gitlabHost}/api/v4/projects/${it.id}/repository/files/Jenkinsfile?ref=master")
+              def filesApi = new URL("${gitlabHost}/api/v4/projects/${it.id}/repository/files/pipeline_config.groovy?ref=master")
               def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['PRIVATE-TOKEN': gitlabToken]))
-
-              createMultibranchPipelineJob(project, gitPath)
+              println "😘 JTE pipeline_config.groovy found in ${project} 🥳"
+              createMultibranchPipelineJob(project, gitPath, true)
               addJobToQueue(project)
+              return;
 
           }
           catch(Exception e) {
-                  println e
-                  print "skipping project ${project} because it has no Jenkinsfile\n\n"
+              println e
+              println "JTE pipeline_config.groovy not found in ${project}. Checking for Jenkinsfile \n\n"
+          }
+          try {
+              def filesApi = new URL("${gitlabHost}/api/v4/projects/${it.id}/repository/files/Jenkinsfile?ref=master")
+              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['PRIVATE-TOKEN': gitlabToken]))
+              println "😘 Jenkinsfile found in ${project} 🥳"
+              createMultibranchPipelineJob(project, gitPath, false)
+              addJobToQueue(project)
+          }
+          catch(Exception e) {
+              println e
+              println "skipping project ${project} because it has no Jenkinsfile\n\n"
           }
       }
   } catch(Exception e) {
@@ -151,16 +233,29 @@ if (gitlabToken) {
 
           try {
             // https://api.github.com/repos/$ORG or $USER/name/contents/Jenkinsfile
-              def filesApi = new URL("${githubHost}/repos/${githubAccount}/${project}/contents/Jenkinsfile")
+              def filesApi = new URL("${githubHost}/repos/${githubAccount}/${project}/contents/pipeline_config.groovy")
               def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['Authorization': "token ${githubToken}"]))
 
+              println "😘 JTE pipeline_config.groovy found in ${project} 🥳"
+              createMultibranchPipelineJob(project, gitPath, true)
+              addJobToQueue(project)
+              return;
 
-              createMultibranchPipelineJob(project, gitPath)
+          }
+          catch(Exception e) {
+              println e
+              println "JTE pipeline_config.groovy not found in ${project}. Checking for Jenkinsfile \n\n"
+          }
+          try {
+              def filesApi = new URL("${githubHost}/repos/${githubAccount}/${project}/contents/Jenkinsfile")
+              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['PRIVATE-TOKEN': gitlabToken]))
+              println "😘 Jenkinsfile found in ${project} 🥳"
+              createMultibranchPipelineJob(project, gitPath, false)
               addJobToQueue(project)
           }
           catch(Exception e) {
-                  println e
-                  print "skipping project ${project} because it has no Jenkinsfile\n\n"
+              println e
+              println "skipping project ${project} because it has no Jenkinsfile\n\n"
           }
       }
   } catch(Exception e) {
@@ -168,7 +263,7 @@ if (gitlabToken) {
       throw e
   }
 } else {
-    print "\n\n No tokens set in the Environment eg GITHUB* or GITLAB* so not sure what to do ..... &#129335;‍♂️ \n\n\n"
+    print "\n\n No tokens set in the Environment eg GITHUB* or GITLAB* so not sure what to do ..... 路‍♂️ \n\n\n"
 }</scriptText>
       <usingScriptText>true</usingScriptText>
       <sandbox>false</sandbox>
