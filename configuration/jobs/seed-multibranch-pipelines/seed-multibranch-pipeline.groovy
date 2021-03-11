@@ -172,7 +172,7 @@ if (gitlabToken) {
   }
 } else if (githubAccount) {
   try {
-      def projects = new groovy.json.JsonSlurper().parse(githubProjects.newReader(requestProperties: ['Authorization': "token ${githubToken}"]))
+      def projects = githubToken ? new groovy.json.JsonSlurper().parse(githubProjects.newReader(requestProperties: ['Authorization': "token ${githubToken}"])) : new groovy.json.JsonSlurper().parse(githubProjects.newReader())
 
       projects.each {
           def project = it.name
@@ -186,7 +186,7 @@ if (gitlabToken) {
           try {
             // https://api.github.com/repos/$ORG or $USER/name/contents/Jenkinsfile
               def filesApi = new URL("${githubHost}/repos/${githubAccount}/${project}/contents/pipeline_config.groovy")
-              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['Authorization': "token ${githubToken}"]))
+              def files =  githubToken ? new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['Authorization': "token ${githubToken}"])) : new groovy.json.JsonSlurper().parse(filesApi.newReader())
 
               println "😘 JTE pipeline_config.groovy found in ${project} 🥳"
               createMultibranchPipelineJob(project, gitPath, true)
