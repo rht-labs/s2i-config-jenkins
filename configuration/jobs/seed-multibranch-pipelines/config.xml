@@ -248,7 +248,7 @@ if (gitlabToken) {
           }
           try {
               def filesApi = new URL("${githubHost}/repos/${githubAccount}/${project}/contents/Jenkinsfile")
-              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['PRIVATE-TOKEN': gitlabToken]))
+              def files =  githubToken ? new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['Authorization': "token ${githubToken}"])) : new groovy.json.JsonSlurper().parse(filesApi.newReader())
               println "😘 Jenkinsfile found in ${project} 🥳"
               createMultibranchPipelineJob(project, gitPath, false)
               addJobToQueue(project)
