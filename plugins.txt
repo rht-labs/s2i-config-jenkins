@@ -65,7 +65,6 @@ docker-workflow:1.25
 dtkit-api:3.0.0
 durable-task:1.35
 echarts-api:4.9.0-3
-eddsa:0.3.0
 email-ext:2.81
 extended-read-permission:3.2
 external-monitor-job:1.7
