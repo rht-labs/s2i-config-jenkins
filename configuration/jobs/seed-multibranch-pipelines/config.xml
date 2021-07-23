@@ -69,6 +69,12 @@ def githubAccount = System.getenv("GITHUB_ACCOUNT")
 def githubOrg = System.getenv("GITHUB_ORG") ?: false
 //eg  https://api.github.com/users/springdo/repos or 
 
+// BITBUCKET
+def bitbucketHost = System.getenv("BITBUCKET_HOST") ?: "https://bitbucket.org/repo"
+def bitbucketToken = System.getenv("BITBUCKET_TOKEN")
+def bitbucketProjectKey = System.getenv("BITBUCKET_PROJECT_KEY") ?: "rht-labs"
+def bitbucketProjectsApi = new URL("${bitbucketHost}/rest/api/1.0/projects/${bitbucketProjectKey}/repos?limit=100")
+
 def githubProjects = githubOrg ? new URL("${githubHost}/orgs/${githubAccount}/repos?per_page=100") : new URL("${githubHost}/users/${githubAccount}/repos?per_page=100")
 
 
@@ -262,8 +268,56 @@ if (gitlabToken) {
       print "\n\n Oops! something went wrong..... Try setting the GITHUB_* Env Vars \n\n\n"
       throw e
   }
+} else if (bitbucketToken) {
+  try {
+      def projects = new groovy.json.JsonSlurper().parse(bitbucketProjectsApi.newReader(requestProperties: ['x-token-auth': bitbucketToken]))
+
+      projects.each {
+          def project = "${it.path}"
+          def repoPath = it.http_url_to_repo
+          def repositorySlug = "${it.id}"
+
+          if (it.archived) {
+              println "skipping project ${project} because it has been archived\n\n"
+              return
+          }
+
+          // 1. Check for "${gitlabHost}/api/v4/projects/${it.id}/repository/files/pipeline_config.groovy?ref=master"
+                // => JTE
+          // 2. Check for Jenkinsfile
+                // => Jenkins classic
+          // else - bail and do nothing
+          try {
+              def filesApi = new URL("${bitbucketHost}/rest/api/1.0/projects/${bitbucketProjectKey}/repos/${repositorySlug}/files/pipeline_config.groovy?ref=master")
+              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['x-token-auth': bitbucketToken]))
+              println "😘 JTE pipeline_config.groovy found in ${project} 🥳"
+              createMultibranchPipelineJob(project, repoPath, true)
+              addJobToQueue(project)
+              return;
+
+          }
+          catch(Exception e) {
+              println e
+              println "JTE pipeline_config.groovy not found in ${project}. Checking for Jenkinsfile \n\n"
+          }
+          try {
+              def filesApi = new URL("${bitbucketHost}/rest/api/1.0/projects/${bitbucketProjectKey}/repos/${repositorySlug}/files/Jenkinsfile?ref=master")
+              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['x-token-auth': bitbucketToken]))
+              println "😘 Jenkinsfile found in ${project} 🥳"
+              createMultibranchPipelineJob(project, repoPath, false)
+              addJobToQueue(project)
+          }
+          catch(Exception e) {
+              println e
+              println "skipping project ${project} because it has no Jenkinsfile\n\n"
+          }
+      }
+  } catch(Exception e) {
+      print "\n\n Please make sure you have set  BITBUCKET_HOST, BITBUCKET_TOKEN and BITBUCKET_PROJECT_KEY in your deploy config for Jenkins \n\n\n"
+      throw e
+  }
 } else {
-    print "\n\n No tokens set in the Environment eg GITHUB* or GITLAB* so not sure what to do ..... 路‍♂️ \n\n\n"
+    print "\n\n No tokens set in the Environment eg GITHUB* or GITLAB or BITBUCKET* so not sure what to do ..... 路‍♂️ \n\n\n"
 }</scriptText>
       <usingScriptText>true</usingScriptText>
       <sandbox>false</sandbox>
