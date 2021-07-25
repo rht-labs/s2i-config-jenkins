@@ -221,12 +221,12 @@ if (gitlabToken) {
   }
 } else if (bitbucketToken) {
   try {
-      def projects = new groovy.json.JsonSlurper().parse(bitbucketProjectsApi.newReader(requestProperties: ['x-token-auth': bitbucketToken]))
+      def projects = new groovy.json.JsonSlurper().parse(bitbucketProjectsApi.newReader(requestProperties: ['Authorization': 'Bearer ' + bitbucketToken]))
 
-      projects.each {
-          def project = "${it.path}"
-          def repoPath = it.http_url_to_repo
-          def repositorySlug = "${it.id}"
+      projects.values.each {
+          def project = "${it.project}"
+          def repoPath = it.links.self.href
+          def repositorySlug = "${it.slug}"
 
           if (it.archived) {
               println "skipping project ${project} because it has been archived\n\n"
@@ -240,7 +240,7 @@ if (gitlabToken) {
           // else - bail and do nothing
           try {
               def filesApi = new URL("${bitbucketHost}/rest/api/1.0/projects/${bitbucketProjectKey}/repos/${repositorySlug}/files/pipeline_config.groovy?ref=master")
-              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['x-token-auth': bitbucketToken]))
+              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['Authorization': 'Bearer ' + bitbucketToken]))
               println "😘 JTE pipeline_config.groovy found in ${project} 🥳"
               createMultibranchPipelineJob(project, repoPath, true)
               addJobToQueue(project)
@@ -253,7 +253,7 @@ if (gitlabToken) {
           }
           try {
               def filesApi = new URL("${bitbucketHost}/rest/api/1.0/projects/${bitbucketProjectKey}/repos/${repositorySlug}/files/Jenkinsfile?ref=master")
-              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['x-token-auth': bitbucketToken]))
+              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['Authorization': 'Bearer ' + bitbucketToken]))
               println "😘 Jenkinsfile found in ${project} 🥳"
               createMultibranchPipelineJob(project, repoPath, false)
               addJobToQueue(project)
