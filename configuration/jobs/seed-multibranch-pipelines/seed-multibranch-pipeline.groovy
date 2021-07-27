@@ -266,7 +266,7 @@ if (gitlabToken) {
           }
       }
   } catch(Exception e) {
-      print "\n\n Please make sure you have set  BITBUCKET_HOST, BITBUCKET_TOKEN and BITBUCKET_PROJECT_KEY in your deploy config for Jenkins \n\n\n"
+      print "\n\n Please make sure you have set BITBUCKET_HOST, BITBUCKET_USER, BITBUCKET_PASSWORD and BITBUCKET_PROJECT_KEY in your deploy config for Jenkins \n\n\n"
       throw e
   }
 } else {
