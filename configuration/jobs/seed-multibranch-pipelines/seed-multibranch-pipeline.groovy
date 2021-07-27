@@ -22,9 +22,11 @@ def githubOrg = System.getenv("GITHUB_ORG") ?: false
 
 // BITBUCKET
 def bitbucketHost = System.getenv("BITBUCKET_HOST") ?: "https://bitbucket.org/repo"
-def bitbucketToken = System.getenv("BITBUCKET_TOKEN")
+def bitbucketUser = System.getenv("BITBUCKET_USER")
+def bitbucketPassword = System.getenv("BITBUCKET_PASSWORD")
 def bitbucketProjectKey = System.getenv("BITBUCKET_PROJECT_KEY") ?: "rht-labs"
 def bitbucketProjectsApi = new URL("${bitbucketHost}/rest/api/1.0/projects/${bitbucketProjectKey}/repos?limit=100")
+def bitbucketAuth = (bitbucketUser+":"+bitbucketPassword).getBytes().encodeBase64().toString();
 
 def githubProjects = githubOrg ? new URL("${githubHost}/orgs/${githubAccount}/repos?per_page=100") : new URL("${githubHost}/users/${githubAccount}/repos?per_page=100")
 
@@ -219,9 +221,9 @@ if (gitlabToken) {
       print "\n\n Oops! something went wrong..... Try setting the GITHUB_* Env Vars \n\n\n"
       throw e
   }
-} else if (bitbucketToken) {
+} else if (bitbucketAuth) {
   try {
-      def projects = new groovy.json.JsonSlurper().parse(bitbucketProjectsApi.newReader(requestProperties: ['Authorization': 'Bearer ' + bitbucketToken]))
+      def projects = new groovy.json.JsonSlurper().parse(bitbucketProjectsApi.newReader(requestProperties: ['Authorization': "Basic ${bitbucketAuth}"]))
 
       projects.values.each {
           def project = "${it.project}"
@@ -240,7 +242,7 @@ if (gitlabToken) {
           // else - bail and do nothing
           try {
               def filesApi = new URL("${bitbucketHost}/rest/api/1.0/projects/${bitbucketProjectKey}/repos/${repositorySlug}/files/pipeline_config.groovy?ref=master")
-              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['Authorization': 'Bearer ' + bitbucketToken]))
+              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['Authorization': "Basic ${bitbucketAuth}"]))
               println "😘 JTE pipeline_config.groovy found in ${project} 🥳"
               createMultibranchPipelineJob(project, repoPath, true)
               addJobToQueue(project)
@@ -253,7 +255,7 @@ if (gitlabToken) {
           }
           try {
               def filesApi = new URL("${bitbucketHost}/rest/api/1.0/projects/${bitbucketProjectKey}/repos/${repositorySlug}/files/Jenkinsfile?ref=master")
-              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['Authorization': 'Bearer ' + bitbucketToken]))
+              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['Authorization': "Basic ${bitbucketAuth}"]))
               println "😘 Jenkinsfile found in ${project} 🥳"
               createMultibranchPipelineJob(project, repoPath, false)
               addJobToQueue(project)
