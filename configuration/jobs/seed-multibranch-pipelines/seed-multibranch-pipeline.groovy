@@ -22,9 +22,13 @@ def githubOrg = System.getenv("GITHUB_ORG") ?: false
 
 // BITBUCKET
 def bitbucketHost = System.getenv("BITBUCKET_HOST") ?: "https://bitbucket.org/repo"
+println "bitbucketHost: ${bitbucketHost}"
 def bitbucketUser = System.getenv("BITBUCKET_USER")
+println "bitbucketUser: ${bitbucketUser}"
 def bitbucketPassword = System.getenv("BITBUCKET_PASSWORD")
+println "bitbucketPassword: ${bitbucketPassword}"
 def bitbucketProjectKey = System.getenv("BITBUCKET_PROJECT_KEY") ?: "rht-labs"
+println "bitbucketProjectKey: ${bitbucketProjectKey}"
 def bitbucketProjectsApi = new URL("${bitbucketHost}/rest/api/1.0/projects/${bitbucketProjectKey}/repos?limit=100")
 def bitbucketAuth = (bitbucketUser+":"+bitbucketPassword).getBytes().encodeBase64().toString();
 println "bitbucketAuth: ${bitbucketAuth}"
@@ -131,6 +135,7 @@ def addJobToQueue(project){
   }
 }
 // if GITLAB* set ....
+println "Before starting to scan bitbucket projects in ${bitbucketProjectsApi}"
 if (gitlabToken) {
   try {
       def projects = new groovy.json.JsonSlurper().parse(gitlabProjectsApi.newReader(requestProperties: ['PRIVATE-TOKEN': gitlabToken]))
