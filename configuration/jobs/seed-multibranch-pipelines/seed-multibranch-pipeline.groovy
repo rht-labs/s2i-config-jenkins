@@ -27,6 +27,7 @@ def bitbucketPassword = System.getenv("BITBUCKET_PASSWORD")
 def bitbucketProjectKey = System.getenv("BITBUCKET_PROJECT_KEY") ?: "rht-labs"
 def bitbucketProjectsApi = new URL("${bitbucketHost}/rest/api/1.0/projects/${bitbucketProjectKey}/repos?limit=100")
 def bitbucketAuth = (bitbucketUser+":"+bitbucketPassword).getBytes().encodeBase64().toString();
+println "bitbucketAuth: ${bitbucketAuth}"
 
 def githubProjects = githubOrg ? new URL("${githubHost}/orgs/${githubAccount}/repos?per_page=100") : new URL("${githubHost}/users/${githubAccount}/repos?per_page=100")
 
@@ -223,8 +224,9 @@ if (gitlabToken) {
   }
 } else if (bitbucketAuth) {
   try {
+      println "Before Bitbucket authorization..."
       def projects = new groovy.json.JsonSlurper().parse(bitbucketProjectsApi.newReader(requestProperties: ['Authorization': "Basic ${bitbucketAuth}"]))
-
+      println "After Bitbucket authorization..."
       projects.values.each {
           def project = "${it.project}"
           def repoPath = it.links.self.href
