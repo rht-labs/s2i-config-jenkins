@@ -1,3 +1,4 @@
+#!/usr/bin/env groovy
 // Groovy script used to seed Jenkins with multi-branch pipeline jobs:
 // 1. Call GitLab API to get each git project in a given group
 // 2. Check if project is archived, if so skip it.
@@ -22,22 +23,16 @@ def githubOrg = System.getenv("GITHUB_ORG") ?: false
 
 // BITBUCKET
 def bitbucketHost = System.getenv("BITBUCKET_HOST") ?: "https://bitbucket.org/repo"
-println "bitbucketHost: ${bitbucketHost}"
 def bitbucketUser = System.getenv("BITBUCKET_USER")
-println "bitbucketUser: ${bitbucketUser}"
 def bitbucketPassword = System.getenv("BITBUCKET_PASSWORD")
-println "bitbucketPassword: ${bitbucketPassword}"
 def bitbucketProjectKey = System.getenv("BITBUCKET_PROJECT_KEY") ?: "rht-labs"
-println "bitbucketProjectKey: ${bitbucketProjectKey}"
 def bitbucketProjectsApi = new URL("${bitbucketHost}/rest/api/1.0/projects/${bitbucketProjectKey}/repos?limit=100")
 def bitbucketAuth = (bitbucketUser+":"+bitbucketPassword).getBytes().encodeBase64().toString();
-println "bitbucketAuth: ${bitbucketAuth}"
 
 def githubProjects = githubOrg ? new URL("${githubHost}/orgs/${githubAccount}/repos?per_page=100") : new URL("${githubHost}/users/${githubAccount}/repos?per_page=100")
 
-
 def createMultibranchPipelineJob(project, gitPath, jte) {
-    def buildNamespace = System.getenv("BUILD_NAMESPACE") ?: "labs-ci-cd"
+    def buildNamespace = System.getenv("BUILD_NAMESPACE") ?: "ocp-ci-cd"
     def buildGitAuthSecret = System.getenv("BUILD_GIT_AUTH_SECRET") ?: "git-auth"
     def jteProject = System.getenv("JTE_PROJECT") ?: "https://gitlab.apps.proj.example.com/rht-labs/pipeline-template-configuration.git"
     def pipelineConfigDir = System.getenv("JTE_PIPELINE_DIR") ?: "pipeline-configuration"
@@ -49,7 +44,7 @@ def createMultibranchPipelineJob(project, gitPath, jte) {
             git {
                 id("${project}")
                 remote(gitPath)
-                credentialsId("${buildNamespace}-${buildGitAuthSecret}")
+                credentialsId("ROSA-Jenkins-Bitbucket-Access-Key")
             }
         }
         triggers {
@@ -229,53 +224,69 @@ if (gitlabToken) {
   }
 } else if (bitbucketAuth) {
   try {
-      println "Before Bitbucket authorization..."
-      def projects = new groovy.json.JsonSlurper().parse(bitbucketProjectsApi.newReader(requestProperties: ['Authorization': "Basic ${bitbucketAuth}"]))
-      println "After Bitbucket authorization..."
+      def process = "curl -s -k -u ${bitbucketUser}:${bitbucketPassword} ${bitbucketProjectsApi}".execute()
+      process.waitFor()
+      def projects = new groovy.json.JsonSlurper().parseText(process.text)
       projects.values.each {
-          def project = "${it.project}"
-          def repoPath = it.links.self.href
-          def repositorySlug = "${it.slug}"
-
-          if (it.archived) {
-              println "skipping project ${project} because it has been archived\n\n"
-              return
-          }
-
-          // 1. Check for "${gitlabHost}/api/v4/projects/${it.id}/repository/files/pipeline_config.groovy?ref=master"
+            def repositorySlug = it.slug
+            def repoPath = ""
+            def clone = it.links.clone
+            clone.each {
+                def name = it.name
+                if(name == "ssh") {
+                    repoPath = it.href
+                }
+            }
+            def project = repositorySlug
+            if (it.archived) {
+                println "skipping project ${repositorySlug} because it has been archived\n\n"
+                return
+            }
+    
+            // 1. Check for "${gitlabHost}/api/v4/projects/${it.id}/repository/files/pipeline_config.groovy?ref=master"
                 // => JTE
-          // 2. Check for Jenkinsfile
+            // 2. Check for Jenkinsfile
                 // => Jenkins classic
-          // else - bail and do nothing
-          try {
-              def filesApi = new URL("${bitbucketHost}/rest/api/1.0/projects/${bitbucketProjectKey}/repos/${repositorySlug}/files/pipeline_config.groovy?ref=master")
-              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['Authorization': "Basic ${bitbucketAuth}"]))
-              println "😘 JTE pipeline_config.groovy found in ${project} 🥳"
-              createMultibranchPipelineJob(project, repoPath, true)
-              addJobToQueue(project)
-              return;
+            // else - bail and do nothing
+            try {
+                process = "curl -s -k -u ${bitbucketUser}:${bitbucketPassword} ${bitbucketHost}/rest/api/1.0/projects/${bitbucketProjectKey}/repos/${repositorySlug}/browse/pipeline_config.groovy?ref=master".execute()
+                process.waitFor()
+                def response = new groovy.json.JsonSlurper().parseText(process.text)
+                def errors = response.errors
+                if (errors) {
+                    throw new Exception("${errors.message}")
+                }                
+                println "😘 JTE pipeline_config.groovy found in ${repositorySlug} 🥳\n"
+                createMultibranchPipelineJob(project, repoPath, true)
+                addJobToQueue(project)
+                return;
+            }
+            catch(Exception e) {
+                println e
+                println "JTE pipeline_config.groovy not found in ${project}. Checking for Jenkinsfile...."
+            }
 
-          }
-          catch(Exception e) {
-              println e
-              println "JTE pipeline_config.groovy not found in ${project}. Checking for Jenkinsfile \n\n"
-          }
-          try {
-              def filesApi = new URL("${bitbucketHost}/rest/api/1.0/projects/${bitbucketProjectKey}/repos/${repositorySlug}/files/Jenkinsfile?ref=master")
-              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['Authorization': "Basic ${bitbucketAuth}"]))
-              println "😘 Jenkinsfile found in ${project} 🥳"
-              createMultibranchPipelineJob(project, repoPath, false)
-              addJobToQueue(project)
-          }
-          catch(Exception e) {
-              println e
-              println "skipping project ${project} because it has no Jenkinsfile\n\n"
-          }
-      }
-  } catch(Exception e) {
+            try {
+                process = "curl -s -k -u ${bitbucketUser}:${bitbucketPassword} ${bitbucketHost}/rest/api/1.0/projects/${bitbucketProjectKey}/repos/${repositorySlug}/browse/Jenkinsfile?ref=master".execute()
+                process.waitFor()
+                def response = new groovy.json.JsonSlurper().parseText(process.text)
+                def errors = response.errors
+                if (errors) {
+                    throw new Exception("${errors.message}")
+                }
+                println "😘 Jenkinsfile found in ${repositorySlug} 🥳 \n"
+                createMultibranchPipelineJob(project, repoPath, false)
+                addJobToQueue(project)
+            }
+            catch(Exception e) {
+                println e
+                println "skipping project ${repositorySlug} because it has no Jenkinsfile \n"
+            }
+        }
+    } catch(Exception e) {
       print "\n\n Please make sure you have set BITBUCKET_HOST, BITBUCKET_USER, BITBUCKET_PASSWORD and BITBUCKET_PROJECT_KEY in your deploy config for Jenkins \n\n\n"
       throw e
-  }
+    }
 } else {
     print "\n\n No tokens set in the Environment eg GITHUB* or GITLAB or BITBUCKET* so not sure what to do ..... 路‍♂️ \n\n\n"
 }
