@@ -37,6 +37,7 @@ def createMultibranchPipelineJob(project, gitPath, jte) {
     def jteProject = System.getenv("JTE_PROJECT") ?: "https://gitlab.apps.proj.example.com/rht-labs/pipeline-template-configuration.git"
     def pipelineConfigDir = System.getenv("JTE_PIPELINE_DIR") ?: "pipeline-configuration"
     def librariesDir = System.getenv("JTE_LIBRARIES_DIR") ?: "libraries"
+    def credentialsId = System.getenv("SSH_ACCESS_KEY") ?: "Access-Key"
 
     // Build Jenkins multibranch jobs
     multibranchPipelineJob(project) {
@@ -44,7 +45,7 @@ def createMultibranchPipelineJob(project, gitPath, jte) {
             git {
                 id("${project}")
                 remote(gitPath)
-                credentialsId("ROSA-Jenkins-Bitbucket-Access-Key")
+                credentialsId("${credentialsId}")
             }
         }
         triggers {
