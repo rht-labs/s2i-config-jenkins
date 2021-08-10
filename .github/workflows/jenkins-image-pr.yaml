@@ -1,0 +1,32 @@
+name: jenkins-image-pr
+on:
+  pull_request:
+    paths:
+      - configuration/**
+      - helpers/**
+      - plugins.txt
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    env:
+      image_name: enablement-jenkins
+    steps:
+      - uses: actions/checkout@v1
+      - name: Get image tags
+        id: image_tags
+        run: |
+          echo -n ::set-output name=IMAGE_TAGS::
+           # exposes variable VERSION
+          source VERSION
+          echo ${VERSION}
+      - name: Pull image
+        run: |
+          docker pull quay.io/openshift/origin-jenkins
+      - name: Setup and Build
+        id: build_image
+        uses: redhat-actions/s2i-build@v2.1
+        with:
+          path_context: '.'
+          builder_image: 'quay.io/openshift/origin-jenkins'
+          image: ${{ env.image_name }}
+          tags: ${{ steps.image_tags.outputs.IMAGE_TAGS }}
