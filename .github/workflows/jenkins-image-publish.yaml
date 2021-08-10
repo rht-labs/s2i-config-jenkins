@@ -1,0 +1,48 @@
+name: jenkins-image-publish
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+    paths:
+      - VERSION
+      - .github/workflows/jenkins-image-publish.yaml
+jobs:
+  build:
+    env:
+      image_name: enablement-jenkins
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Get image tags
+        id: image_tags
+        run: |
+          echo -n ::set-output name=IMAGE_TAGS::
+           # exposes variable VERSION
+          source VERSION
+          TAGS=('latest')
+          if [ "${VERSION}" ] && [ "${VERSION}" != "latest" ]; then
+              TAGS+=("${VERSION}")
+          fi
+          echo "${TAGS[*]}"
+      - name: Pull image
+        run: |
+          docker pull quay.io/openshift/origin-jenkins
+      - name: Setup and Build
+        id: build_image
+        uses: redhat-actions/s2i-build@v2
+        with:
+          path_context: '.'
+          builder_image: 'quay.io/openshift/origin-jenkins'
+          image: ${{ env.image_name }}
+          tags: ${{ steps.image_tags.outputs.IMAGE_TAGS }}
+      - name: Push to Quay
+        id: push_to_quay
+        uses: redhat-actions/push-to-registry@v2.1
+        with:
+          image: ${{ steps.build_image.outputs.image }}
+          registry: ${{ secrets.REGISTRY_URI }}/${{ secrets.REGISTRY_REPOSITORY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+          tags: ${{ steps.build_image.outputs.tags }}
