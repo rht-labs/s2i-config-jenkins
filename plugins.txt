@@ -133,7 +133,7 @@ multibranch-scan-webhook-trigger:1.0.9
 cloudbees-folder:6.15
 cobertura:1.16
 durable-task:1.37
-openshift-sync:1.0.47
+openshift-sync:1.0.48
 generic-webhook-trigger:1.74
 run-condition:1.5
 ssh-slaves:1.32.0
