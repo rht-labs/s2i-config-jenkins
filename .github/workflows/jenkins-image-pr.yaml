@@ -5,6 +5,7 @@ on:
       - configuration/**
       - helpers/**
       - plugins.txt
+      - VERSION
 jobs:
   build:
     runs-on: ubuntu-20.04
@@ -19,14 +20,18 @@ jobs:
            # exposes variable VERSION
           source VERSION
           echo ${VERSION}
-      - name: Pull image
+      - name: Download s2i binary
         run: |
-          docker pull quay.io/openshift/origin-jenkins
-      - name: Setup and Build
-        id: build_image
-        uses: redhat-actions/s2i-build@v2.1
+          curl -sL https://github.com/openshift/source-to-image/releases/download/v1.3.1/source-to-image-v1.3.1-a5a77147-linux-amd64.tar.gz  | tar -xzf -
+      - name: Generate Dockerfile
+        run: |
+          ./s2i build --as-dockerfile Dockerfile . quay.io/openshift/origin-jenkins:latest  ${{ env.image_name }}:${{ steps.image_tags.outputs.IMAGE_TAGS }} --loglevel 1 
+      - name: Build image
+        uses: redhat-actions/buildah-build@v2.6
         with:
-          path_context: '.'
-          builder_image: 'quay.io/openshift/origin-jenkins'
           image: ${{ env.image_name }}
+          oci: true
           tags: ${{ steps.image_tags.outputs.IMAGE_TAGS }}
+          dockerfiles: |
+            ./Dockerfile
+          
