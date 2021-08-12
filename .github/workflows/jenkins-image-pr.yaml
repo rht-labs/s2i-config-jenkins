@@ -27,6 +27,7 @@ jobs:
         run: |
           ./s2i build --as-dockerfile Dockerfile . quay.io/openshift/origin-jenkins:latest  ${{ env.image_name }}:${{ steps.image_tags.outputs.IMAGE_TAGS }} --loglevel 1 
       - name: Build image
+        id: build_image
         uses: redhat-actions/buildah-build@v2.6
         with:
           image: ${{ env.image_name }}
