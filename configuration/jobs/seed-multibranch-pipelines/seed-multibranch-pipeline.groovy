@@ -25,7 +25,7 @@ def githubProjects = githubOrg ? new URL("${githubHost}/orgs/${githubAccount}/re
 
 
 def createMultibranchPipelineJob(project, gitPath, jte) {
-    def buildNamespace = System.getenv("BUILD_NAMESPACE") ?: "labs-ci-cd"
+    def buildNamespace = System.getenv("OPENSHIFT_BUILD_NAMESPACE") ?: "labs-ci-cd"
     def buildGitAuthSecret = System.getenv("BUILD_GIT_AUTH_SECRET") ?: "git-auth"
     def jteProject = System.getenv("JTE_PROJECT") ?: "https://gitlab.apps.proj.example.com/rht-labs/pipeline-template-configuration.git"
     def pipelineConfigDir = System.getenv("JTE_PIPELINE_DIR") ?: "pipeline-configuration"
