@@ -55,10 +55,10 @@
 
 // GITLAB
 def gitlabHost = System.getenv(&quot;GITLAB_HOST&quot;)
-def gitlabToken = &apos;&apos;
-def groupName = &quot;testing&quot;
+def gitlabToken = System.getenv(&quot;GITLAB_TOKEN&quot;)
+def groupName = System.getenv(&quot;GITLAB_GROUP_NAME&quot;) ?: &quot;rht-labs&quot;
 def gitlabProjectsApi = new URL(&quot;${gitlabHost}/api/v4/groups/${groupName}/projects?per_page=100&quot;)
-def defaultBranch = System.getenv(&quot;GITLAB_DEFAULT_BRANCH&quot;) ?: &quot;main&quot;
+def defaultBranch = System.getenv(&quot;GITLAB_DEFAULT_BRANCH&quot;) ?: &quot;master&quot;
 
 // GITHUB
 def githubHost = &quot;https://api.github.com&quot;
