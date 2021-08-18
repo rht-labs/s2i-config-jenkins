@@ -7,11 +7,11 @@
 
 
 // GITLAB
-def gitlabHost = System.getenv("GITLAB_HOST") ?: "https://gitlab.apps.proj.example.com"
+def gitlabHost = System.getenv("GITLAB_HOST")
 def gitlabToken = System.getenv("GITLAB_TOKEN")
 def groupName = System.getenv("GITLAB_GROUP_NAME") ?: "rht-labs"
 def gitlabProjectsApi = new URL("${gitlabHost}/api/v4/groups/${groupName}/projects?per_page=100")
-
+def defaultBranch = System.getenv("GITLAB_DEFAULT_BRANCH") ?: "master"
 
 // GITHUB
 def githubHost = "https://api.github.com"
@@ -123,9 +123,10 @@ def addJobToQueue(project){
   }
 }
 // if GITLAB* set ....
-if (gitlabToken) {
+if (gitlabHost) {
   try {
-      def projects = new groovy.json.JsonSlurper().parse(gitlabProjectsApi.newReader(requestProperties: ['PRIVATE-TOKEN': gitlabToken]))
+      // def projects = new groovy.json.JsonSlurper().parse(gitlabProjectsApi.newReader(requestProperties: ['PRIVATE-TOKEN': gitlabToken]))
+      def projects = gitlabToken ? new groovy.json.JsonSlurper().parse(gitlabProjectsApi.newReader(requestProperties: ['PRIVATE-TOKEN': gitlabToken])) : new groovy.json.JsonSlurper().parse(gitlabProjectsApi.newReader())
 
       projects.each {
           def project = "${it.path}"
@@ -142,8 +143,8 @@ if (gitlabToken) {
                 // => Jenkins classic
           // else - bail and do nothing
           try {
-              def filesApi = new URL("${gitlabHost}/api/v4/projects/${it.id}/repository/files/pipeline_config.groovy?ref=master")
-              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['PRIVATE-TOKEN': gitlabToken]))
+              def filesApi = new URL("${gitlabHost}/api/v4/projects/${it.id}/repository/files/pipeline_config.groovy?ref=${defaultBranch}")
+              def files =  gitlabToken ? new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['PRIVATE-TOKEN': gitlabToken])) : new groovy.json.JsonSlurper().parse(filesApi.newReader())
               println "😘 JTE pipeline_config.groovy found in ${project} 🥳"
               createMultibranchPipelineJob(project, gitPath, true)
               addJobToQueue(project)
@@ -155,8 +156,8 @@ if (gitlabToken) {
               println "JTE pipeline_config.groovy not found in ${project}. Checking for Jenkinsfile \n\n"
           }
           try {
-              def filesApi = new URL("${gitlabHost}/api/v4/projects/${it.id}/repository/files/Jenkinsfile?ref=master")
-              def files = new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['PRIVATE-TOKEN': gitlabToken]))
+              def filesApi = new URL("${gitlabHost}/api/v4/projects/${it.id}/repository/files/Jenkinsfile?ref=${defaultBranch}")
+              def files =  gitlabToken ? new groovy.json.JsonSlurper().parse(filesApi.newReader(requestProperties: ['PRIVATE-TOKEN': gitlabToken])) :  new groovy.json.JsonSlurper().parse(filesApi.newReader())
               println "😘 Jenkinsfile found in ${project} 🥳"
               createMultibranchPipelineJob(project, gitPath, false)
               addJobToQueue(project)
