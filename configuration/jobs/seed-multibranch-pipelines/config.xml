@@ -55,6 +55,7 @@
 
 // GITLAB
 def gitlabHost = System.getenv(&quot;GITLAB_HOST&quot;)
+gitlabHost = gitlabHost.contains(&quot;https&quot;) ? gitlabHost : &quot;https://${gitlabHost}&quot;
 def gitlabToken = System.getenv(&quot;GITLAB_TOKEN&quot;)
 def groupName = System.getenv(&quot;GITLAB_GROUP_NAME&quot;) ?: &quot;rht-labs&quot;
 def gitlabProjectsApi = new URL(&quot;${gitlabHost}/api/v4/groups/${groupName}/projects?per_page=100&quot;)
