@@ -121,7 +121,7 @@ blueocean-core-js:1.24.7
 lockable-resources:2.11
 gitlab-plugin:1.5.20
 blueocean-personalization:1.24.7
-authentication-tokens:1.4
+authentication-tokens:1.53.v1c90fd9191a_b_
 blueocean-jwt:1.24.7
 plot:2.1.9
 workflow-scm-step:2.13
