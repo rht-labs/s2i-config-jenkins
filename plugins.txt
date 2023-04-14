@@ -48,7 +48,7 @@ font-awesome-api:5.15.3-3
 dtkit-api:3.0.0
 github:1.33.1
 credentials-binding:1.27
-configuration-as-code:1.51
+configuration-as-code:1625.v27444588cc3d
 blueocean-i18n:1.24.7
 pipeline-utility-steps:2.8.0
 openshift-client:1.0.35
@@ -68,7 +68,9 @@ github-api:1.123
 token-macro:2.15
 pipeline-rest-api:2.19
 workflow-job:2.41
-sshd:3.0.4
+sshd:3.275.v9e17c10f2571
+mina-sshd-api-common:2.9.2-62.v199162f0a_2f8
+mina-sshd-api-core:2.9.2-62.v199162f0a_2f8
 code-coverage-api:1.4.0
 blueocean-bitbucket-pipeline:1.24.7
 blueocean-commons:1.24.7
@@ -155,7 +157,7 @@ openshift-login:1.0.29
 extended-read-permission:3.2
 job-dsl:1.77
 matrix-auth:2.6.7
-snakeyaml-api:1.29.1
+snakeyaml-api:1.33-95.va_b_a_e3e47b_fa_4
 credentials:1224.vc23ca_a_9a_2cb_0
 summary_report:1.15
 kubernetes-credentials:0.9.0
